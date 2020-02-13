@@ -1,14 +1,63 @@
 extern crate minifb;
+extern crate rand;
 
 use minifb::{Key, KeyRepeat, MouseMode, Window, WindowOptions};
 use std::time::Duration;
+use rand::Rng;
 
-const SLOW_VALUE: u64 = 100;
+const SLOW_VALUE: u64 = 0;
 const SQUARE_SIZE: i32 = 10;
 const WIDTH: i32 = 108;
 const HEIGHT: i32 = 108;
 const WIN_WIDTH: i32 = WIDTH * SQUARE_SIZE;
 const WIN_HEIGHT: i32 = HEIGHT * SQUARE_SIZE;
+
+fn add_spaceship_generator(grid: &mut Vec<Vec<i32>>) {
+    grid[0][24] = 1;
+    grid[1][22] = 1;
+    grid[1][24] = 1;
+    grid[2][12] = 1;
+    grid[2][13] = 1;
+    grid[2][20] = 1;
+    grid[2][21] = 1;
+    grid[2][34] = 1;
+    grid[2][35] = 1;
+    grid[3][11] = 1;
+    grid[3][15] = 1;
+    grid[3][20] = 1;
+    grid[3][21] = 1;
+    grid[3][34] = 1;
+    grid[3][35] = 1;
+    grid[4][0] = 1;
+    grid[4][1] = 1;
+    grid[4][10] = 1;
+    grid[4][16] = 1;
+    grid[4][20] = 1;
+    grid[4][21] = 1;
+    grid[5][0] = 1;
+    grid[5][1] = 1;
+    grid[5][10] = 1;
+    grid[5][14] = 1;
+    grid[5][16] = 1;
+    grid[5][17] = 1;
+    grid[5][22] = 1;
+    grid[5][24] = 1;
+    grid[6][10] = 1;
+    grid[6][16] = 1;
+    grid[6][24] = 1;
+    grid[7][11] = 1;
+    grid[7][15] = 1;
+    grid[8][12] = 1;
+    grid[8][13] = 1;
+}
+
+fn add_random(grid : &mut Vec<Vec<i32>>) {
+    for y in 0..HEIGHT as usize {
+        for x in 0..WIDTH as usize {
+            grid[y][x] = rand::thread_rng().gen_range(0, 2);
+        }
+    }
+}
 
 fn display(buffer: &mut Vec<u32>, grid: &Vec<Vec<i32>>)
 {
@@ -82,42 +131,8 @@ fn main() {
     };
     let mut grid: Vec<Vec<i32>> = vec![vec![0; WIDTH as usize]; HEIGHT as usize];
     let mut is_make_mode: bool = true;
-    grid[0][24] = 1;
-    grid[1][22] = 1;
-    grid[1][24] = 1;
-    grid[2][12] = 1;
-    grid[2][13] = 1;
-    grid[2][20] = 1;
-    grid[2][21] = 1;
-    grid[2][34] = 1;
-    grid[2][35] = 1;
-    grid[3][11] = 1;
-    grid[3][15] = 1;
-    grid[3][20] = 1;
-    grid[3][21] = 1;
-    grid[3][34] = 1;
-    grid[3][35] = 1;
-    grid[4][0] = 1;
-    grid[4][1] = 1;
-    grid[4][10] = 1;
-    grid[4][16] = 1;
-    grid[4][20] = 1;
-    grid[4][21] = 1;
-    grid[5][0] = 1;
-    grid[5][1] = 1;
-    grid[5][10] = 1;
-    grid[5][14] = 1;
-    grid[5][16] = 1;
-    grid[5][17] = 1;
-    grid[5][22] = 1;
-    grid[5][24] = 1;
-    grid[6][10] = 1;
-    grid[6][16] = 1;
-    grid[6][24] = 1;
-    grid[7][11] = 1;
-    grid[7][15] = 1;
-    grid[8][12] = 1;
-    grid[8][13] = 1;
+    //add_spaceship_generator(&mut grid);
+    add_random(&mut grid);
 
     loop {
         if !window.is_open() || window.is_key_down(Key::Escape) { break; }
@@ -132,6 +147,10 @@ fn main() {
         if is_make_mode {
             make_grid(&mut window, &mut buffer, &mut grid);
         } else {
+            let randx: usize = rand::thread_rng().gen_range(0, WIDTH) as usize;
+            let randy: usize = rand::thread_rng().gen_range(0, HEIGHT) as usize;
+
+            grid[randy][randx] = 1;
             expand_life(&mut buffer, &mut grid);
         }
         window.update_with_buffer(&mut buffer, WIDTH as usize, HEIGHT as usize).unwrap();
