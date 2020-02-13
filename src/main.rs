@@ -3,6 +3,7 @@ extern crate minifb;
 use minifb::{Key, KeyRepeat, MouseMode, Window, WindowOptions};
 use std::time::Duration;
 
+const SLOW_VALUE: u64 = 100;
 const SQUARE_SIZE: i32 = 10;
 const WIDTH: i32 = 108;
 const HEIGHT: i32 = 108;
@@ -23,17 +24,11 @@ fn make_grid(window: &mut Window, buffer: &mut Vec<u32>, grid: &mut Vec<Vec<i32>
         let x: usize = (mouse.0 / SQUARE_SIZE as f32) as usize;
         let y: usize = (mouse.1 / SQUARE_SIZE as f32) as usize;
 
-        if window.is_key_pressed(Key::Space, KeyRepeat::No) {
-            grid[y][x] = 1 ^ grid[y][x];
+        if window.is_key_down(Key::Space) {
+            grid[y][x] = 1;
         }
-        if window.is_key_pressed(Key::C, KeyRepeat::No) {
-            for y in 0..HEIGHT as usize {
-                for x in 0..WIDTH as usize {
-                    if grid[y][x] == 1 {
-                        println!("grid[{}][{}] = 1;", y, x);
-                    }
-                }
-            }
+        if window.is_key_down(Key::Backspace) {
+            grid[y][x] = 0;
         }
     });
     display(buffer, grid);
@@ -125,13 +120,13 @@ fn main() {
     grid[8][13] = 1;
 
     loop {
-        if window.is_key_down(Key::Escape) { break; }
+        if !window.is_open() || window.is_key_down(Key::Escape) { break; }
         if window.is_key_pressed(Key::Enter, KeyRepeat::No) {
             is_make_mode = !is_make_mode;
             if is_make_mode {
                 window.limit_update_rate(Some(Duration::from_millis(0)));
             } else {
-                window.limit_update_rate(Some(Duration::from_millis(0)));
+                window.limit_update_rate(Some(Duration::from_millis(SLOW_VALUE)));
             }
         }
         if is_make_mode {
